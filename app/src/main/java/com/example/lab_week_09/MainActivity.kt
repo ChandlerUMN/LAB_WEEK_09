@@ -13,13 +13,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.lab_week_09.ui.theme.LAB_WEEK_09Theme
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import com.example.lab_week_09.ui.theme.OnBackgroundItemText
-import com.example.lab_week_09.ui.theme.OnBackgroundTitleText
-import com.example.lab_week_09.ui.theme.PrimaryTextButton
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.*
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 
+
+import com.example.lab_week_09.ui.theme.*
+
+data class Student(var name: String)
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,27 +37,38 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Home()
+                    val navController = rememberNavController()
+                    App(navController)
                 }
             }
         }
     }
 }
 
-data class Student(
-    var name: String
-)
+@Composable
+fun App(navController: NavHostController) {
+    NavHost(navController = navController, startDestination = "home") {
+        composable("home") {
+            Home(
+                navigateFromHomeToResult = { listString ->
+                    navController.navigate("resultContent/$listString")
+                }
+            )
+        }
+        composable(
+            "resultContent/{listData}",
+            arguments = listOf(navArgument("listData") { type = NavType.StringType })
+        ) { backStackEntry ->
+            ResultContent(
+                listData = backStackEntry.arguments?.getString("listData").orEmpty()
+            )
+        }
+    }
+}
 
 @Composable
-fun Home() {
-    // Mutable list of students
-    val listData = remember { mutableStateListOf(
-        Student("Tanu"),
-        Student("Tina"),
-        Student("Tono")
-    ) }
-
-    // Input field state
+fun Home(navigateFromHomeToResult: (String) -> Unit) {
+    val listData = remember { mutableStateListOf(Student("Tanu"), Student("Tina"), Student("Tono")) }
     var inputText by remember { mutableStateOf("") }
 
     HomeContent(
@@ -62,7 +80,8 @@ fun Home() {
                 listData.add(Student(inputText))
                 inputText = ""
             }
-        }
+        },
+        onNavigate = { navigateFromHomeToResult(listData.joinToString { it.name }) }
     )
 }
 
@@ -71,15 +90,15 @@ fun HomeContent(
     listData: SnapshotStateList<Student>,
     inputText: String,
     onInputValueChange: (String) -> Unit,
-    onButtonClick: () -> Unit
+    onButtonClick: () -> Unit,
+    onNavigate: () -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        // Input section
-        OnBackgroundTitleText(text = "Masukkan Nama:")
+        OnBackgroundTitleText("Masukkan Nama:")
 
         TextField(
             value = inputText,
@@ -88,19 +107,15 @@ fun HomeContent(
             modifier = Modifier.fillMaxWidth()
         )
 
-        PrimaryTextButton(
-            text = "Tambah",
-            onClick = { onButtonClick() }
-        )
+        Row(modifier = Modifier.padding(top = 8.dp)) {
+            PrimaryTextButton(text = "Tambah", onClick = onButtonClick)
+            Spacer(modifier = Modifier.width(8.dp))
+            PrimaryTextButton(text = "Lihat Hasil", onClick = onNavigate)
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // List section
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-        ) {
+        LazyColumn(modifier = Modifier.weight(1f)) {
             items(listData) { student ->
                 OnBackgroundItemText(text = student.name)
             }
@@ -108,9 +123,25 @@ fun HomeContent(
     }
 }
 
+@Composable
+fun ResultContent(listData: String) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        OnBackgroundTitleText("Hasil Daftar Nama:")
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
+            items(listData.split(", ")) { name ->
+                OnBackgroundItemText(name)
+            }
+        }
+    }
+}
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewHome() {
-    Home()
+    Home { }
 }
