@@ -16,6 +16,10 @@ import androidx.compose.ui.unit.dp
 import com.example.lab_week_09.ui.theme.LAB_WEEK_09Theme
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import com.example.lab_week_09.ui.theme.OnBackgroundItemText
+import com.example.lab_week_09.ui.theme.OnBackgroundTitleText
+import com.example.lab_week_09.ui.theme.PrimaryTextButton
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,7 +79,8 @@ fun HomeContent(
             .padding(16.dp)
     ) {
         // Input section
-        Text(text = "Masukkan Nama:")
+        OnBackgroundTitleText(text = "Masukkan Nama:")
+
         TextField(
             value = inputText,
             onValueChange = { onInputValueChange(it) },
@@ -83,34 +88,26 @@ fun HomeContent(
             modifier = Modifier.fillMaxWidth()
         )
 
-        Button(
-            onClick = { onButtonClick() },
-            modifier = Modifier
-                .padding(top = 8.dp)
-                .fillMaxWidth()
-        ) {
-            Text("Tambah")
-        }
+        PrimaryTextButton(
+            text = "Tambah",
+            onClick = { onButtonClick() }
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // List section fills remaining space
+        // List section
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
         ) {
             items(listData) { student ->
-                Text(
-                    text = student.name,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp)
-                )
+                OnBackgroundItemText(text = student.name)
             }
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable
