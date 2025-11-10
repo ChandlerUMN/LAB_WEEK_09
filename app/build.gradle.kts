@@ -55,6 +55,15 @@ dependencies {
     implementation("androidx.activity:activity-compose:1.8.0")
     implementation("androidx.navigation:navigation-compose:2.7.4")
     implementation(libs.androidx.foundation)
+    // Compose
+    implementation("androidx.compose.ui:ui:1.5.0")
+    implementation("androidx.compose.material3:material3:1.3.1")
+    implementation("androidx.navigation:navigation-compose:2.7.3")
+    // Moshi
+    implementation("com.squareup.moshi:moshi:1.15.0")
+    implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
+    // Kotlin Reflect (dibutuhkan oleh Moshi Kotlin)
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.10")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
